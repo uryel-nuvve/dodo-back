@@ -27,8 +27,13 @@ export class AppController {
     return res.status(HttpStatus.OK).json({ status: 'ok', db: dbStatus, details });
   }
 
+  private simulateFailure = false;
+
   @Get('saude/up')
   up(@Res() res: Response) {
+    if (this.simulateFailure) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ status: 'down' });
+    }
     return res.status(HttpStatus.OK).json({ status: 'up' });
   }
 
@@ -37,6 +42,19 @@ export class AppController {
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
         message: 'Falha intencional no healthcheck.' 
     });
+  }
+
+  // Endpoints para controle via Frontend
+  @Get('api/simulate-failure')
+  simulateFail(@Res() res: Response) {
+    this.simulateFailure = true;
+    return res.status(HttpStatus.OK).json({ message: 'Healthcheck vai falhar na próxima checagem' });
+  }
+
+  @Get('api/recover-failure')
+  recoverFail(@Res() res: Response) {
+    this.simulateFailure = false;
+    return res.status(HttpStatus.OK).json({ message: 'Healthcheck recuperado' });
   }
 }
 
