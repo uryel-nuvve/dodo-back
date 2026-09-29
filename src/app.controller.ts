@@ -4,8 +4,6 @@ import { Client } from 'pg';
 
 @Controller()
 export class AppController {
-  private simulateFailure = false;
-
   @Get('api/status')
   async status(@Res() res: Response) {
     let dbStatus = 'disconnected';
@@ -31,25 +29,13 @@ export class AppController {
 
   @Get('saude/up')
   up(@Res() res: Response) {
-    if (this.simulateFailure) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ status: 'down' });
-    }
     return res.status(HttpStatus.OK).json({ status: 'up' });
   }
 
   @Get('saude/down')
   down(@Res() res: Response) {
-    this.simulateFailure = true;
-    return res.status(HttpStatus.OK).json({ 
-        message: 'Healthcheck configurado para falhar. O próximo /health/up retornará 500.' 
-    });
-  }
-  
-  @Get('health/recover')
-  recover(@Res() res: Response) {
-    this.simulateFailure = false;
-    return res.status(HttpStatus.OK).json({ 
-        message: 'Healthcheck recuperado. O próximo /health/up retornará 200.' 
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
+        message: 'Falha intencional no healthcheck.' 
     });
   }
 }
